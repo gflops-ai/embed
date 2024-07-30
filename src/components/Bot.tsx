@@ -18,6 +18,8 @@ import { CancelButton } from './buttons/CancelButton';
 import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@/utils/audioRecording';
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
+import { onMount, createEffect } from 'solid-js';
+import { getZendeskSessionID, syncFlowiseSessionWithZendesk, getFlowiseSessionIDForZendesk } from '@/utils';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -237,6 +239,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   const [isDragActive, setIsDragActive] = createSignal(false);
 
   onMount(() => {
+    // 既存のobserverConfig処理
     if (botProps?.observersConfig) {
       const { observeUserInput, observeLoading, observeMessages } = botProps.observersConfig;
       typeof observeUserInput === 'function' &&
@@ -255,12 +258,26 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
           observeMessages(messages());
         });
     }
-
+  
+    // 既存のchatContainerのスクロール処理
     if (!bottomSpacer) return;
     setTimeout(() => {
       chatContainer?.scrollTo(0, chatContainer.scrollHeight);
     }, 50);
+  
+    // 新しいFlowiseAIとZendeskのセッション管理ロジック
+    const initialFlowiseSessionID = getFlowiseSessionIDForZendesk();
+    if (initialFlowiseSessionID) {
+      // 初期のFlowiseセッションを復元
+      setChatId(initialFlowiseSessionID);
+    } else {
+      // 新しいFlowiseセッションを開始
+      const newFlowiseSessionID = uuidv4();
+      syncFlowiseSessionWithZendesk(newFlowiseSessionID);
+      setChatId(newFlowiseSessionID);
+    }
   });
+  
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -539,49 +556,64 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
   };
 
   // Auto scroll chat to bottom
-  createEffect(() => {
-    if (messages()) {
-      if (messages().length > 1) {
-        setTimeout(() => {
-          chatContainer?.scrollTo(0, chatContainer.scrollHeight);
-        }, 400);
-      }
+  // 既存の createEffect フック
+createEffect(() => {
+  if (messages()) {
+    if (messages().length > 1) {
+      setTimeout(() => {
+        chatContainer?.scrollTo(0, chatContainer.scrollHeight);
+      }, 400);
     }
-  });
+  }
+});
 
-  createEffect(() => {
-    if (props.fontSize && botContainer) botContainer.style.fontSize = `${props.fontSize}px`;
-  });
+createEffect(() => {
+  if (props.fontSize && botContainer) botContainer.style.fontSize = `${props.fontSize}px`;
+});
 
-  // eslint-disable-next-line solid/reactivity
-  createEffect(async () => {
-    const chatMessage = getLocalStorageChatflow(props.chatflowid);
-    if (chatMessage && Object.keys(chatMessage).length) {
-      if (chatMessage.chatId) setChatId(chatMessage.chatId);
-      const savedLead = chatMessage.lead;
-      if (savedLead) {
-        setIsLeadSaved(!!savedLead);
-        setLeadEmail(savedLead.email);
-      }
-      const loadedMessages: MessageType[] =
-        chatMessage?.chatHistory?.length > 0
-          ? chatMessage.chatHistory?.map((message: MessageType) => {
-              const chatHistory: MessageType = {
-                messageId: message?.messageId,
-                message: message.message,
-                type: message.type,
-              };
-              if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
-              if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
-              if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
-              if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
-              return chatHistory;
-            })
-          : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
-
-      const filteredMessages = loadedMessages.filter((message) => message.message !== '' && message.type !== 'leadCaptureMessage');
-      setMessages([...filteredMessages]);
+// 既存のデータ取得 createEffect
+createEffect(async () => {
+  const chatMessage = getLocalStorageChatflow(props.chatflowid);
+  if (chatMessage && Object.keys(chatMessage).length) {
+    if (chatMessage.chatId) setChatId(chatMessage.chatId);
+    const savedLead = chatMessage.lead;
+    if (savedLead) {
+      setIsLeadSaved(!!savedLead);
+      setLeadEmail(savedLead.email);
     }
+    const loadedMessages: MessageType[] =
+      chatMessage?.chatHistory?.length > 0
+        ? chatMessage.chatHistory?.map((message: MessageType) => {
+            const chatHistory: MessageType = {
+              messageId: message?.messageId,
+              message: message.message,
+              type: message.type,
+            };
+            if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments;
+            if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations;
+            if (message.fileUploads) chatHistory.fileUploads = message.fileUploads;
+            if (message.agentReasoning) chatHistory.agentReasoning = message.agentReasoning;
+            return chatHistory;
+          })
+        : [{ message: props.welcomeMessage ?? defaultWelcomeMessage, type: 'apiMessage' }];
+
+    const filteredMessages = loadedMessages.filter((message) => message.message !== '' && message.type !== 'leadCaptureMessage');
+    setMessages([...filteredMessages]);
+  }
+});
+
+// 新しい createEffect でセッションチェックロジックを追加
+createEffect(() => {
+  const checkZendeskSessionInterval = setInterval(() => {
+    const currentFlowiseSessionID = getFlowiseSessionIDForZendesk();
+    if (currentFlowiseSessionID !== chatId()) {
+      setChatId(currentFlowiseSessionID);
+    }
+  }, 60000); // 1分間隔でチェック
+
+  return () => clearInterval(checkZendeskSessionInterval); // コンポーネントのクリーンアップ時にインターバルをクリア
+});
+
 
     // Determine if particular chatflow is available for streaming
     const { data } = await isStreamAvailableQuery({

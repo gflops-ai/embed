@@ -112,3 +112,36 @@ export const getBubbleButtonSize = (size: 'small' | 'medium' | 'large' | number 
   if (size === 'large') return 64;
   return 48;
 };
+
+export const getZendeskSessionID = () => {
+  const name = "_zendesk_session=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(';');
+  for(let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+};
+
+export const syncFlowiseSessionWithZendesk = (flowiseSessionID: string) => {
+  const zendeskSessionID = getZendeskSessionID();
+  if (zendeskSessionID) {
+    const sessionKey = `flowiseSession_${zendeskSessionID}`;
+    localStorage.setItem(sessionKey, flowiseSessionID);
+  }
+};
+
+export const getFlowiseSessionIDForZendesk = () => {
+  const zendeskSessionID = getZendeskSessionID();
+  if (zendeskSessionID) {
+    const sessionKey = `flowiseSession_${zendeskSessionID}`;
+    return localStorage.getItem(sessionKey);
+  }
+  return null;
+};

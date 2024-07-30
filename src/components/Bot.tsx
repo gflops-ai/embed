@@ -19,7 +19,8 @@ import { cancelAudioRecording, startAudioRecording, stopAudioRecording } from '@
 import { LeadCaptureBubble } from '@/components/bubbles/LeadCaptureBubble';
 import { removeLocalStorageChatHistory, getLocalStorageChatflow, setLocalStorageChatflow } from '@/utils';
 import { onMount, createEffect } from 'solid-js';
-import { getZendeskSessionID, syncFlowiseSessionWithZendesk, getFlowiseSessionIDForZendesk } from '@/utils';
+import { getZendeskSharedSessionID, getFlowiseSessionIDForZendesk, removeLocalStorageChatHistory, setLocalStorageChatflow } from '@/utils';
+import { setChatId, setMessages } from '@/state';
 
 export type FileEvent<T = EventTarget> = {
   target: T;
@@ -605,14 +606,35 @@ createEffect(async () => {
 // 新しい createEffect でセッションチェックロジックを追加
 createEffect(() => {
   const checkZendeskSessionInterval = setInterval(() => {
+    const currentZendeskSessionID = getZendeskSharedSessionID();
     const currentFlowiseSessionID = getFlowiseSessionIDForZendesk();
-    if (currentFlowiseSessionID !== chatId()) {
-      setChatId(currentFlowiseSessionID);
+    
+    if (currentZendeskSessionID) {
+      const storedFlowiseSessionID = localStorage.getItem(`flowiseSession_${currentZendeskSessionID}`);
+      
+      if (!storedFlowiseSessionID || storedFlowiseSessionID !== currentFlowiseSessionID) {
+        if (currentFlowiseSessionID) {
+          // 現在のチャット履歴をクリア
+          removeLocalStorageChatHistory(currentFlowiseSessionID);
+        }
+
+        // 新しいセッションの準備
+        const newChatId = `${currentZendeskSessionID}`;
+        setChatId(newChatId);
+        setLocalStorageChatflow(newChatId, newChatId);
+
+        // 初期メッセージ設定
+        setMessages([{
+          message: 'Hi there! How can I help?',
+          type: 'apiMessage',
+        }]);
+      }
     }
   }, 60000); // 1分間隔でチェック
 
-  return () => clearInterval(checkZendeskSessionInterval); // コンポーネントのクリーンアップ時にインターバルをクリア
+  return () => clearInterval(checkZendeskSessionInterval); // クリーンアップ
 });
+
 
 
     // Determine if particular chatflow is available for streaming

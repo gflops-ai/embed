@@ -92,7 +92,7 @@ export const removeLocalStorageChatHistory = (chatflowid: string) => {
   try {
     const parsedChatDetails = JSON.parse(chatDetails);
     if (parsedChatDetails.lead) {
-      // Dont remove lead when chat is cleared
+      // リード情報を保持して、その他の情報を削除
       const obj = { lead: parsedChatDetails.lead };
       localStorage.removeItem(`${chatflowid}_EXTERNAL`);
       localStorage.setItem(`${chatflowid}_EXTERNAL`, JSON.stringify(obj));
@@ -137,11 +137,28 @@ export const syncFlowiseSessionWithZendesk = (flowiseSessionID: string) => {
   }
 };
 
-export const getFlowiseSessionIDForZendesk = () => {
-  const zendeskSessionID = getZendeskSessionID();
+export const getFlowiseSessionIDForZendesk = (): string | null => {
+  const zendeskSessionID = getZendeskSharedSessionID();
   if (zendeskSessionID) {
-    const sessionKey = `flowiseSession_${zendeskSessionID}`;
-    return localStorage.getItem(sessionKey);
+    return localStorage.getItem(`flowiseSession_${zendeskSessionID}`);
   }
   return null;
+};
+
+
+// 「_zendesk_shared_session」クッキーからセッションIDを取得
+export const getZendeskSharedSessionID = (): string => {
+  const name = "_zendesk_shared_session=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
 };

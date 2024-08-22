@@ -7,23 +7,55 @@
 // );
 
 import { JSX } from 'solid-js/jsx-runtime';
+import { createSignal } from 'solid-js';
 
-const defaultButtonColor = '#f03bf6';
+const defaultButtonColor = '#f03bf6'; // ホバーしていない時の色
+const hoverColor = '#000000'; // ホバー時の色
 
-export const SendIcon = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={props.width || '24'}
-    height={props.height || '24'}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={props.color || defaultButtonColor}
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    {...props}
-  >
-    <path d="m5 12 7-7 7 7" />
-    <path d="M12 19V5" />
-  </svg>
-);
+export const SendIcon = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => {
+  const [isHovered, setIsHovered] = createSignal(false);
+
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={props.width || '24'}
+      height={props.height || '24'}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={isHovered() ? hoverColor : props.color || defaultButtonColor}
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      {...props}
+    >
+      <path d="m5 12 7-7 7 7" />
+      <path d="M12 19V5" />
+    </svg>
+  );
+};
+
+//////////////////
+
+// import { JSX } from 'solid-js/jsx-runtime';
+
+// const defaultButtonColor = '#f03bf6';
+
+// export const SendIcon = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
+//   <svg
+//     xmlns="http://www.w3.org/2000/svg"
+//     width={props.width || '24'}
+//     height={props.height || '24'}
+//     viewBox="0 0 24 24"
+//     // fill="none"
+//     stroke={props.color || defaultButtonColor}
+//     stroke-width="2"
+//     stroke-linecap="round"
+//     stroke-linejoin="round"
+//     {...props}
+//   >
+//     <path d="m5 12 7-7 7 7" />
+//     <path d="M12 19V5" />
+//   </svg>
+// );

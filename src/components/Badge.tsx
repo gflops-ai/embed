@@ -1,3 +1,4 @@
+// src/components/Badge.tsx
 import { FooterTheme } from '@/features/bubble/types';
 import { Show, onCleanup, onMount } from 'solid-js';
 

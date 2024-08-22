@@ -1,3 +1,4 @@
+// src/components/Bot.tsx
 import { createSignal, createEffect, For, onMount, Show, mergeProps, on, createMemo } from 'solid-js';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMessageQuery, isStreamAvailableQuery, IncomingInput, getChatbotConfig, FeedbackRatingType } from '@/queries/sendMessageQuery';

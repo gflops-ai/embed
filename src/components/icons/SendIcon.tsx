@@ -1,31 +1,7 @@
 import { JSX } from 'solid-js/jsx-runtime';
 const defaultButtonColor = '#f03bf6';
 export const SendIcon = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19px" style={{ stroke: props.color ?? defaultButtonColor }} {...props}>
-    <path d="M12 19V5m-7 7l7-7 7 7" />
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="19px" style={{ fill: props.color ?? defaultButtonColor }} {...props}>
+    <path d="M16 8a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM8 4a.5.5 0 0 0-.5.5v4.793l-2.146-2.147a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 9.293V4.5A.5.5 0 0 0 8 4z" />
   </svg>
 );
-
-//////////////////
-
-// import { JSX } from 'solid-js/jsx-runtime';
-
-// const defaultButtonColor = '#f03bf6';
-
-// export const SendIcon = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
-//   <svg
-//     xmlns="http://www.w3.org/2000/svg"
-//     width={props.width || '24'}
-//     height={props.height || '24'}
-//     viewBox="0 0 24 24"
-//     // fill="none"
-//     stroke={props.color || defaultButtonColor}
-//     stroke-width="2"
-//     stroke-linecap="round"
-//     stroke-linejoin="round"
-//     {...props}
-//   >
-//     <path d="m5 12 7-7 7 7" />
-//     <path d="M12 19V5" />
-//   </svg>
-// );

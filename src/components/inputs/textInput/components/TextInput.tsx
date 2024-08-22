@@ -100,7 +100,7 @@ export const TextInput = (props: Props) => {
 
   return (
     <div
-      class="w-full h-auto max-h-[192px] min-h-[56px] flex flex-col items-end justify-between chatbot-input border border-[#eeeeee] rounded-full overflow-hidden"
+      class="w-full flex items-center justify-between chatbot-input border border-[#eeeeee] rounded-full overflow-hidden"
       data-testid="input"
       style={{
         margin: 'auto',
@@ -109,56 +109,22 @@ export const TextInput = (props: Props) => {
       }}
       onKeyDown={submitWhenEnter}
     >
-      <Show when={warningMessage() !== ''}>
-        <div class="w-full px-4 pt-4 pb-1 text-red-500 text-sm" data-testid="warning-message">
-          {warningMessage()}
-        </div>
-      </Show>
-      <div class="w-full flex items-center justify-between">
-        {props.uploadsConfig?.isImageUploadAllowed ? (
-          <>
-            <ImageUploadButton
-              buttonColor={props.sendButtonColor}
-              type="button"
-              class="m-0 h-14 flex items-center justify-center rounded-l-full"
-              isDisabled={props.disabled || isSendButtonDisabled()}
-              on:click={handleImageUploadClick}
-            >
-              <span style={{ 'font-family': 'Poppins, sans-serif' }}>Image Upload</span>
-            </ImageUploadButton>
-            <input style={{ display: 'none' }} multiple ref={fileUploadRef as HTMLInputElement} type="file" onChange={handleFileChange} />
-          </>
-        ) : null}
-        <ShortTextInput
-          ref={inputRef as HTMLTextAreaElement}
-          onInput={handleInput}
-          value={inputValue()}
-          fontSize={props.fontSize}
-          disabled={props.disabled}
-          placeholder={props.placeholder ?? 'Type your question'}
-          class="rounded-full flex-grow mx-2"
-        />
-        {props.uploadsConfig?.isSpeechToTextEnabled ? (
-          <RecordAudioButton
-            buttonColor={props.sendButtonColor}
-            type="button"
-            class="m-0 start-recording-button h-14 flex items-center justify-center rounded-full"
-            isDisabled={props.disabled || isSendButtonDisabled()}
-            on:click={props.onMicrophoneClicked}
-          >
-            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Record Audio</span>
-          </RecordAudioButton>
-        ) : null}
-        <SendButton
-          sendButtonColor={props.sendButtonColor}
-          type="button"
-          isDisabled={props.disabled || isSendButtonDisabled()}
-          class="m-0 h-14 w-14 flex items-center justify-center rounded-full"
-          on:click={submit}
-        >
-          <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
-        </SendButton>
-      </div>
+      <ShortTextInput
+        ref={inputRef as HTMLTextAreaElement}
+        onInput={handleInput}
+        value={inputValue()}
+        fontSize={props.fontSize}
+        disabled={props.disabled}
+        placeholder={props.placeholder ?? 'Type your question'}
+        class="flex-grow"
+      />
+      <SendButton
+        sendButtonColor={props.sendButtonColor}
+        type="button"
+        isDisabled={props.disabled || isSendButtonDisabled()}
+        class="m-1 h-12 w-12 flex items-center justify-center rounded-full"
+        on:click={submit}
+      />
     </div>
   );
 };

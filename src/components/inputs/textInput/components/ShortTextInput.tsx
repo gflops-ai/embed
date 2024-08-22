@@ -18,7 +18,6 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
     const target = e.currentTarget as HTMLTextAreaElement;
     if (props.ref) {
       if (target.value === '') {
-        // reset height when value is empty
         setHeight(DEFAULT_HEIGHT);
       } else {
         setHeight(target.scrollHeight - 24);
@@ -29,7 +28,6 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    // Handle Shift + Enter new line
     if (e.keyCode == 13 && e.shiftKey) {
       e.preventDefault();
       e.stopPropagation();
@@ -42,7 +40,7 @@ export const ShortTextInput = (props: ShortTextInputProps) => {
   return (
     <textarea
       ref={props.ref}
-      class={`focus:outline-none bg-transparent px-4 py-4 flex-1 w-full h-full min-h-[56px] max-h-[128px] text-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 rounded-2xl ${local.class || ''}`}
+      class={`focus:outline-none bg-transparent px-4 py-4 flex-1 w-full h-full min-h-[56px] max-h-[128px] text-input disabled:opacity-50 disabled:cursor-not-allowed disabled:brightness-100 rounded-full ${local.class || ''}`}
       disabled={props.disabled}
       style={{
         'font-size': props.fontSize ? `${props.fontSize}px` : '16px',

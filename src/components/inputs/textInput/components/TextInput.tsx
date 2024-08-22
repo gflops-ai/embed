@@ -100,7 +100,7 @@ export const TextInput = (props: Props) => {
 
   return (
     <div
-      class="w-full h-auto max-h-[192px] min-h-[56px] flex flex-col items-end justify-between chatbot-input border border-[#eeeeee] rounded-2xl overflow-hidden"
+      class="w-full h-auto max-h-[192px] min-h-[56px] flex flex-col items-end justify-between chatbot-input border border-[#eeeeee] rounded-full overflow-hidden"
       data-testid="input"
       style={{
         margin: 'auto',
@@ -114,13 +114,13 @@ export const TextInput = (props: Props) => {
           {warningMessage()}
         </div>
       </Show>
-      <div class="w-full flex items-end justify-between">
+      <div class="w-full flex items-center justify-between">
         {props.uploadsConfig?.isImageUploadAllowed ? (
           <>
             <ImageUploadButton
               buttonColor={props.sendButtonColor}
               type="button"
-              class="m-0 h-14 flex items-center justify-center rounded-l-2xl"
+              class="m-0 h-14 flex items-center justify-center rounded-l-full"
               isDisabled={props.disabled || isSendButtonDisabled()}
               on:click={handleImageUploadClick}
             >
@@ -136,13 +136,13 @@ export const TextInput = (props: Props) => {
           fontSize={props.fontSize}
           disabled={props.disabled}
           placeholder={props.placeholder ?? 'Type your question'}
-          class="rounded-2xl"
+          class="rounded-full flex-grow mx-2"
         />
         {props.uploadsConfig?.isSpeechToTextEnabled ? (
           <RecordAudioButton
             buttonColor={props.sendButtonColor}
             type="button"
-            class="m-0 start-recording-button h-14 flex items-center justify-center rounded-2xl"
+            class="m-0 start-recording-button h-14 flex items-center justify-center rounded-full"
             isDisabled={props.disabled || isSendButtonDisabled()}
             on:click={props.onMicrophoneClicked}
           >
@@ -153,7 +153,7 @@ export const TextInput = (props: Props) => {
           sendButtonColor={props.sendButtonColor}
           type="button"
           isDisabled={props.disabled || isSendButtonDisabled()}
-          class="m-0 h-14 flex items-center justify-center rounded-r-2xl"
+          class="m-0 h-14 w-14 flex items-center justify-center rounded-full"
           on:click={submit}
         >
           <span style={{ 'font-family': 'Poppins, sans-serif' }}>Send</span>
